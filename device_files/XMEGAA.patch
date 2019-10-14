@@ -1,0 +1,112 @@
+diff --git a/XMEGAA/ATxmega128A1U.atdf b/XMEGAA/ATxmega128A1U.atdf
+old mode 100644
+new mode 100755
+index 2669bb4..90ec241
+--- a/XMEGAA/ATxmega128A1U.atdf
++++ b/XMEGAA/ATxmega128A1U.atdf
+@@ -2590,7 +2590,7 @@
+         <value caption="7 cycles" name="7CLK" value="0x07"/>
+       </value-group>
+     </module>
+-    <module name="TWI" id="I6089" caption="Two-Wire Interface">
++    <module name="TWI" id="I6089" version="XMEGAAU" caption="Two-Wire Interface">
+       <register-group caption="" name="TWI_MASTER" size="7">
+         <register caption="Control Register A" name="CTRLA" offset="0x00" size="1">
+           <bitfield caption="Interrupt Level" mask="0xC0" name="INTLVL" values="TWI_MASTER_INTLVL"/>
+@@ -2599,7 +2599,7 @@
+           <bitfield caption="Enable TWI Master" mask="0x08" name="ENABLE"/>
+         </register>
+         <register caption="Control Register B" name="CTRLB" offset="0x01" size="1">
+-          <bitfield caption="Inactive Bus timeout" mask="0x0C" name="TIMEOUT" values="TWI_MASTER_TIMEOUT"/>
++          <bitfield caption="Inactive Bus Timeout" mask="0x0C" name="TIMEOUT" values="TWI_MASTER_TIMEOUT"/>
+           <bitfield caption="Quick Command Enable" mask="0x02" name="QCEN"/>
+           <bitfield caption="Smart Mode Enable" mask="0x01" name="SMEN"/>
+         </register>
+@@ -2653,11 +2653,17 @@
+       </register-group>
+       <register-group caption="Two-Wire Interface" name="TWI" size="14">
+         <register caption="TWI Common Control Register" name="CTRL" offset="0x00" size="1">
+-          <bitfield caption="SDA Hold Time Enable" mask="0x06" name="SDAHOLD" values="SDA_HOLD_TIME"/>
++          <bitfield caption="SDA Hold Time Enable" mask="0x06" name="SDAHOLD" values="TWI_SDAHOLD"/>
+           <bitfield caption="External Driver Interface Enable" mask="0x01" name="EDIEN"/>
+         </register>
+         <register-group caption="TWI master module" name="MASTER" offset="0x0001" name-in-module="TWI_MASTER"/>
+         <register-group caption="TWI slave module" name="SLAVE" offset="0x0008" name-in-module="TWI_SLAVE"/></register-group>
++      <value-group caption="SDA Hold Time" name="TWI_SDAHOLD">
++        <value caption="SDA Hold Time off" name="OFF" value="0x00"/>
++        <value caption="SDA Hold Time 50 ns" name="50NS" value="0x01"/>
++        <value caption="SDA Hold Time 300 ns" name="300NS" value="0x02"/>
++        <value caption="SDA Hold Time 400 ns" name="400NS" value="0x03"/>
++      </value-group>
+       <value-group caption="Master Interrupt Level" name="TWI_MASTER_INTLVL">
+         <value caption="Interrupt Disabled" name="OFF" value="0x00"/>
+         <value caption="Low Level" name="LO" value="0x01"/>
+@@ -2693,12 +2699,6 @@
+         <value caption="Used To Complete a Transaction" name="COMPTRANS" value="0x02"/>
+         <value caption="Used in Response to Address/Data Interrupt" name="RESPONSE" value="0x03"/>
+       </value-group>
+-      <value-group caption="SDA hold time" name="SDA_HOLD_TIME">
+-        <value caption="SDA hold time off" value="0x00" name="OFF"/>
+-        <value caption="Typical 50ns hold time" value="0x01" name="50NS"/>
+-        <value caption="Typical 300ns hold time" value="0x2" name="300NS"/>
+-        <value caption="Typical 400ns hold time" value="0x03" name="400NS"/>
+-      </value-group>
+       <interrupt-group name="TWI">
+         <interrupt index="0" name="TWIS" caption="TWI Slave Interrupt"/>
+         <interrupt index="1" name="TWIM" caption="TWI Master Interrupt"/>
+diff --git a/XMEGAA/ATxmega64A1U.atdf b/XMEGAA/ATxmega64A1U.atdf
+old mode 100644
+new mode 100755
+index 0f24d1f..4ee9a27
+--- a/XMEGAA/ATxmega64A1U.atdf
++++ b/XMEGAA/ATxmega64A1U.atdf
+@@ -2590,7 +2590,7 @@
+         <value caption="7 cycles" name="7CLK" value="0x07"/>
+       </value-group>
+     </module>
+-    <module name="TWI" id="I6089" caption="Two-Wire Interface">
++    <module name="TWI" id="I6089" version="XMEGAAU" caption="Two-Wire Interface">
+       <register-group caption="" name="TWI_MASTER" size="7">
+         <register caption="Control Register A" name="CTRLA" offset="0x00" size="1">
+           <bitfield caption="Interrupt Level" mask="0xC0" name="INTLVL" values="TWI_MASTER_INTLVL"/>
+@@ -2599,7 +2599,7 @@
+           <bitfield caption="Enable TWI Master" mask="0x08" name="ENABLE"/>
+         </register>
+         <register caption="Control Register B" name="CTRLB" offset="0x01" size="1">
+-          <bitfield caption="Inactive Bus timeout" mask="0x0C" name="TIMEOUT" values="TWI_MASTER_TIMEOUT"/>
++          <bitfield caption="Inactive Bus Timeout" mask="0x0C" name="TIMEOUT" values="TWI_MASTER_TIMEOUT"/>
+           <bitfield caption="Quick Command Enable" mask="0x02" name="QCEN"/>
+           <bitfield caption="Smart Mode Enable" mask="0x01" name="SMEN"/>
+         </register>
+@@ -2653,11 +2653,17 @@
+       </register-group>
+       <register-group caption="Two-Wire Interface" name="TWI" size="14">
+         <register caption="TWI Common Control Register" name="CTRL" offset="0x00" size="1">
+-          <bitfield caption="SDA Hold Time Enable" mask="0x06" name="SDAHOLD" values="SDA_HOLD_TIME"/>
++          <bitfield caption="SDA Hold Time Enable" mask="0x06" name="SDAHOLD" values="TWI_SDAHOLD"/>
+           <bitfield caption="External Driver Interface Enable" mask="0x01" name="EDIEN"/>
+         </register>
+         <register-group caption="TWI master module" name="MASTER" offset="0x0001" name-in-module="TWI_MASTER"/>
+         <register-group caption="TWI slave module" name="SLAVE" offset="0x0008" name-in-module="TWI_SLAVE"/></register-group>
++      <value-group caption="SDA Hold Time" name="TWI_SDAHOLD">
++        <value caption="SDA Hold Time off" name="OFF" value="0x00"/>
++        <value caption="SDA Hold Time 50 ns" name="50NS" value="0x01"/>
++        <value caption="SDA Hold Time 300 ns" name="300NS" value="0x02"/>
++        <value caption="SDA Hold Time 400 ns" name="400NS" value="0x03"/>
++      </value-group>
+       <value-group caption="Master Interrupt Level" name="TWI_MASTER_INTLVL">
+         <value caption="Interrupt Disabled" name="OFF" value="0x00"/>
+         <value caption="Low Level" name="LO" value="0x01"/>
+@@ -2693,12 +2699,6 @@
+         <value caption="Used To Complete a Transaction" name="COMPTRANS" value="0x02"/>
+         <value caption="Used in Response to Address/Data Interrupt" name="RESPONSE" value="0x03"/>
+       </value-group>
+-      <value-group caption="SDA hold time" name="SDA_HOLD_TIME">
+-        <value caption="SDA hold time off" value="0x00" name="OFF"/>
+-        <value caption="Typical 50ns hold time" value="0x01" name="50NS"/>
+-        <value caption="Typical 300ns hold time" value="0x2" name="300NS"/>
+-        <value caption="Typical 400ns hold time" value="0x03" name="400NS"/>
+-      </value-group>
+       <interrupt-group name="TWI">
+         <interrupt index="0" name="TWIS" caption="TWI Slave Interrupt"/>
+         <interrupt index="1" name="TWIM" caption="TWI Master Interrupt"/>
