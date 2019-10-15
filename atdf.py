@@ -16,11 +16,21 @@ LOGGER = logging.getLogger('atdf.modules')
 #     parameters (only in CPU module?)
 #         param
 
+def lowestSet(mask):
+    ''' found this on StackOverflow - it simply returns the lowest bit that is set in a byte '''
+    low = (mask & -mask)
+    lowBit = -1
+    while (low):
+        low >>= 1
+        lowBit += 1
+    return(lowBit)
+
 class BitField:
     def __init__(self, xmlNode):
         self.name = xmlNode.get('name')
         self.description = xmlNode.get('caption')
         self.mask = int(xmlNode.get('mask'), 16)
+        self.shift = lowestSet(self.mask)
         self.valueType = xmlNode.get('values')
 
     def __repr__(self):

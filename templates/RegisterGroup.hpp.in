@@ -1,0 +1,37 @@
+/**
+ * {{module.version}}-{{module.name}} (id {{module.id}})
+ * {{module.description}}
+ *
+ *
+ */
+#pragma once
+
+#include <cstdint>
+#include "register.hpp"
+#include <boost/static_assert.hpp>
+
+{% for group in module.registerGroups-%}
+/**
+ * {{group.name}}
+ * {{group.description}}
+ * Size: {{group.size}} bytes
+ */
+template <addressType BASE_ADDRESS>
+struct {{group.name}}_t {
+    {% for register in group.registers -%}
+    {% if register.typename is defined %}
+    /// {{register.description}}
+    {{register.typename}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {{register.name}};
+    {% else %}
+    /// {{register.description}}
+    struct {{register.name}} : public reg8_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
+        {%- for field in register.fields %}
+        typedef reg_field_t<THIS_ADDRESS, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
+        {%- endfor %}
+    };
+    {% endif %}
+    {%- endfor %}
+    {%- block methods %}{% endblock %}
+};
+
+{% endfor -%}
