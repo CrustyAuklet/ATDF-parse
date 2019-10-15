@@ -23,13 +23,14 @@ struct {{group.name}}_t {
     /// {{register.description}}
     {{register.typename}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {{register.name}};
     {% else %}
-    /// {{register.description}}
-    struct {{register.name}} : public reg8_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
+        {% set rs = register.size * 8 %}
+    /// {{register.description}} - {{register.size}}
+    struct {{register.name}} : public reg{{rs}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
         {%- for field in register.fields %}
-        typedef reg_field_t<THIS_ADDRESS, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
+        typedef reg_field{{rs}}_t<THIS_ADDRESS, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
         {%- endfor %}
     };
-    {% endif %}
+    {%- endif %}
     {%- endfor %}
     {%- block methods %}{% endblock %}
 };

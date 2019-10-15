@@ -33,16 +33,19 @@ struct reg8_t{
 };
 
 /// AVR requires 16-bit registers to be read and written and two 8-bit accesses in specific order
-template<class LOW_BYTE, class HIGH_BYTE>
+template<addressType address, class mutability_policy = rw_reg8_t>
 struct reg16_t{
+    typedef reg8_t<address, mutability_policy> LB;
+    typedef reg8_t<address+1, mutability_policy> HB;
     static void write(const addressType value) {
-        LOW_BYTE::write(value);
-        HIGH_BYTE::write(value>>8);
+        LB::write(value);
+        HB::write(value>>8);
     }
     static addressType read() {
-        const registerType lb = LOW_BYTE::read();
-        return lb | (HIGH_BYTE::read() << 8);
+        const registerType lb = LB::read();
+        return lb | (HB::read() << 8);
     }
+    // TODO: need field access for 16 bit registers, that spans the bytes (counter in USB cas 10 bit field and then other stuff in the rest of HB)
 };
 
 /*** Structures for accessing bitfields within 8-bit registers ***/

@@ -1,17 +1,24 @@
-from reader import ATDFReader
-import atdf
+from pathlib import Path
+import shutil
+
 from jinja2 import Template
 
-df = ATDFReader("device_files/XMEGAA/ATxmega64A1U.atdf")
+from reader import ATDFReader
+import atdf
+
+device = "ATxmega64A1U"
+
+df = ATDFReader(f"device_files/XMEGAA/{device}.atdf")
 modules = df.getModules()
 module_list = [ atdf.Module(m) for m in modules.getchildren() ]
 
-musart = module_list[-6]
-mtwi = module_list[-13]
+shutil.rmtree(f"src/{device}", ignore_errors=True)
+Path(f"src/{device}").mkdir(exist_ok=True, parents=True)
 
 t = Template(open('templates/RegisterGroup.hpp.in', 'r').read())
-code = t.render(module=mtwi)
 
-ofile = open("test1.hpp", 'w')
-ofile.write(code)
-ofile.close()
+for m in module_list:
+    ofile = open(f"src/{device}/{m.name}.hpp", 'w')
+    code = t.render(module=m)
+    ofile.write(code)
+    ofile.close()
