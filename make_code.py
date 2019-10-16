@@ -1,7 +1,8 @@
 from pathlib import Path
 import shutil
 
-from jinja2 import Template
+#from jinja2 import Template
+import jinja2
 
 from reader import ATDFReader
 import atdf
@@ -15,10 +16,21 @@ module_list = [ atdf.Module(m) for m in modules.getchildren() ]
 shutil.rmtree(f"src/{device}", ignore_errors=True)
 Path(f"src/{device}").mkdir(exist_ok=True, parents=True)
 
-t = Template(open('templates/RegisterGroup.hpp.in', 'r').read())
+templateLoader = jinja2.FileSystemLoader(searchpath="./templates")
+templateEnv = jinja2.Environment(loader=templateLoader)
+
+t = templateEnv.get_template('RegisterGroup.hpp.in')
 
 for m in module_list:
+    # open the output file
     ofile = open(f"src/{device}/{m.name}.hpp", 'w')
-    code = t.render(module=m)
+
+    # open tempalte, specialized version if available
+    if Path(f"templates/{m.version}-{m.name}.hpp.in").is_file():
+        t2 = templateEnv.get_template(f"{m.version}-{m.name}.hpp.in")
+        code = t2.render(module=m)
+    else:
+        code = t.render(module=m)
+
     ofile.write(code)
     ofile.close()

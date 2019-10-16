@@ -1,2 +1,3 @@
 # keep LF endings in all source files
 *.py text eol=lf
+*.atdf text eol=lf

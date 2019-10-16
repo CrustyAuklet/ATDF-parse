@@ -34,15 +34,16 @@ def download_packs_atdf(packs, dest):
     shutil.rmtree(dest+"_", ignore_errors=True)
 
 if __name__ == "__main__":
-    list = get_device_list()
+    device_list = get_device_list()
 
     # TODO: ensure family exists
     Family = 'XMEGAA'
+
     shutil.rmtree(f"device_files/{Family}", ignore_errors=True)
     Path(f"device_files").mkdir(exist_ok=True, parents=True)
 
-    list = [ p for p in list if Family in p['device'] ]
-    download_packs_atdf(list, f"device_files/{Family}")
+    device_list = [ d for d in device_list if re.search(Family, d['device']) ]
+    download_packs_atdf(device_list, f"device_files/{Family}")
 
     # requires system to have patch command
     os.system(f"(cd device_files; patch -p1 -f --input={Family}.patch)")
