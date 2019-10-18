@@ -23,7 +23,6 @@ struct rw_reg8_t : public ro_reg8_t, public wo_reg8_t { };
 
 template<addressType address, class mutability_policy = rw_reg8_t>
 struct reg8_t{
-    static const addressType THIS_ADDRESS = address;
     static void write(registerType value) {
         mutability_policy::write_reg(reinterpret_cast<volatile registerType*>(address),value);
     }

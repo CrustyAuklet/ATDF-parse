@@ -6,11 +6,13 @@
  */
 #pragma once
 
-#include <cstdint>
-#include "register.hpp"
+#include "device/register.hpp"
 #include <boost/static_assert.hpp>
+#include <cstdint>
 
-{% for group in module.registerGroups-%}
+namespace device {
+
+{% for group in module.registerGroups -%}
 /**
  * {{group.name}}
  * {{group.description}}
@@ -27,7 +29,7 @@ struct {{group.name}}_t {
     /// {{register.description}} - {{register.size}} bytes
     struct {{register.name}} : public reg{{rs}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
         {%- for field in register.fields %}
-        typedef reg_field{{rs}}_t<THIS_ADDRESS, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
+        typedef reg_field_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
         {%- endfor %}
     };
     {%- endif %}
