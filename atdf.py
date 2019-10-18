@@ -97,11 +97,13 @@ class RegisterGroup:
 class ValueGroup:
     def __init__(self, xmlNode):
         assert xmlNode.tag == 'value-group'
-        self.name = xmlNode.get('name')
+        self.name = xmlNode.get('name').split('_', 1)[-1]   # remove the leading module name as it is redundant
         self.description = xmlNode.get('caption')
         self.values = []
         for val in xmlNode.getchildren():
-            self.values.append( { 'name':val.get('name'), 'value':int(val.get('value'), 16), 'description':val.get('caption') } )
+            theName = val.get('name')
+            theName = '_'+theName if theName[0].isdigit() else theName
+            self.values.append( { 'name':theName, 'value':int(val.get('value'), 16), 'description':val.get('caption') } )
 
     def __repr__(self):
         return f'{self.name} : {len(self.values)} Enums'
