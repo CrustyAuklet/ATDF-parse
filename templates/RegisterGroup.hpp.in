@@ -7,7 +7,6 @@
 #pragma once
 
 #include "device/register.hpp"
-#include <boost/static_assert.hpp>
 #include <cstdint>
 
 namespace device {
@@ -20,20 +19,20 @@ namespace device {
  */
 template <addressType BASE_ADDRESS>
 struct {{group.name}}_t {
-    {%- for register in group.registers -%}
-    {% if register.typename is defined %}{# Register instances have the variable typename #}
+{%- for register in group.registers -%}
+{% if register.typename is defined %}{# Register instances have the variable typename #}
     /// {{register.description}}
     {{register.typename}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {{register.name}};
-    {% else %}
-        {% set rs = register.size * 8 %}
+{% else %}
+{% set rs = register.size * 8 %}
     /// {{register.description}} - {{register.size}} bytes
     struct {{register.name}} : public reg{{rs}}_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
-        {%- for field in register.fields %}
+{%- for field in register.fields %}
         typedef reg_field_t<BASE_ADDRESS + {{'0x%04X' % register.offset}}, {{'0x%02X' % field.mask}}, {{field.shift}}> {{field.name}};    //< {{field.description}} using {{field.valueType}}
-        {%- endfor %}
+{%- endfor %}
     };
-    {%- endif %}
-    {%- endfor %}
+{%- endif %}
+{%- endfor %}
 };
 {% endfor %}
 namespace {{module.name}} {
@@ -71,3 +70,4 @@ namespace {{module.name}} {
 {% endfor %}
 } // namespace {{module.name}}
 } // namespace device
+
