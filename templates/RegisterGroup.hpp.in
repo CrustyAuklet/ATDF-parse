@@ -33,41 +33,40 @@ struct {{group.name}}_t {
     };
 {%- endif %}
 {%- endfor %}
-};
-{% endfor %}
-namespace {{module.name}} {
+{%- if loop.last %}
 {% for group in module.valueGroups %}
     // {{group.description}}
-    class {{group.name}} {
-    private:
+    class {{group.name}}v {
+    public:
         enum {{group.name}}_ {
 {%- for value in group.values %}
-            {{value.name}}_ = {{'0x%02X' % value.value}}, // {{value.description}}
+            {{value.name}} = {{'0x%02X' % value.value}}, // {{value.description}}
 {%- endfor %}
         };
-        {{group.name}}_ value_;
-    public:
-        static const {{group.name}} {% for value in group.values %}{{value.name}}{% if not loop.last %}, {%else%};{%endif%}{% endfor %}
-        explicit {{group.name}}(const {{group.name}}_& v) : value_(v) {}
-        operator uint8_t() { return static_cast<uint8_t>(value_); }
-    };
-{% endfor %}
-{% for group in module.interruptGroups %}
-    // {{group.name}} Interrupts
-    class INTERRUPTS {
+        {{group.name}}v(const {{group.name}}_& v) : value_(v) {}
+        operator uint8_t() const { return value_; }
     private:
-        enum {{group.name}}_VECTORS_ {
-{%- for interrupt in group.interrupts %}
-            {{interrupt.name}}_ = {{interrupt.index}}, // {{interrupt.description}}
-{%- endfor %}
-        };
-        {{group.name}}_VECTORS_ value_;
-    public:
-        static const {{group.name}} {% for interrupt in group.interrupts %}{{interrupt.name}}{% if not loop.last %}, {%else%};{%endif%}{% endfor %}
-        explicit {{group.name}}(const {{group.name}}_VECTORS_& v) : value_(v) {}
-        operator uint8_t() { return static_cast<uint8_t>(value_); }
+        uint8_t value_;
     };
 {% endfor %}
-} // namespace {{module.name}}
+{%- for group in module.interruptGroups %}
+    // {{group.name}} ISR Vector Offsets (two bytes each)
+    class INTERRUPTS {
+    public:
+        enum INTERRUPTS_ {
+{%- for interrupt in group.interrupts %}
+            {{interrupt.name}} = {{interrupt.index}}, // {{interrupt.description}}
+{%- endfor %}
+        };
+        INTERRUPTS(const INTERRUPTS_& v) : value_(v) {}
+        operator uint8_t() const { return value_; }
+    private:
+        uint8_t value_;
+    };
+{% endfor %}
+{% endif -%}
+};
+
+{% endfor -%}
 } // namespace device
 
