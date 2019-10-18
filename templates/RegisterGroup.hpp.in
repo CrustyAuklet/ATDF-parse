@@ -53,5 +53,21 @@ namespace {{module.name}} {
         operator uint8_t() { return static_cast<uint8_t>(value_); }
     };
 {% endfor %}
+{% for group in module.interruptGroups %}
+    // {{group.name}} Interrupts
+    class INTERRUPTS {
+    private:
+        enum {{group.name}}_VECTORS_ {
+{%- for interrupt in group.interrupts %}
+            {{interrupt.name}}_ = {{interrupt.index}}, // {{interrupt.description}}
+{%- endfor %}
+        };
+        {{group.name}}_VECTORS_ value_;
+    public:
+        static const {{group.name}} {% for interrupt in group.interrupts %}{{interrupt.name}}{% if not loop.last %}, {%else%};{%endif%}{% endfor %}
+        explicit {{group.name}}(const {{group.name}}_VECTORS_& v) : value_(v) {}
+        operator uint8_t() { return static_cast<uint8_t>(value_); }
+    };
+{% endfor %}
 } // namespace {{module.name}}
 } // namespace device
