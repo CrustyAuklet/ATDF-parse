@@ -1,5 +1,8 @@
 from pathlib import Path
 import shutil
+import argparse
+import sys
+import os
 
 #from jinja2 import Template
 import jinja2
@@ -7,23 +10,34 @@ import jinja2
 from reader import ATDFReader
 import atdf
 
-device = "ATxmega128A1U"
+def run():
+    parser = argparse.ArgumentParser(description='ATDF Code Generator')
+    parser.add_argument('-i','--input', help="ATDF file to parse", type=str, dest='atdf_file', required=True)
+    parser.add_argument('-t','--templates', help="Jinja Template Directory (required)", type=str, dest='template_dir', required=True)
+    parser.add_argument('-o','--output', help="Output Directory", type=str, default='./', dest='output_dir')
 
-df = ATDFReader(f"device_files/XMEGAA/{device}.atdf")
-modules = df.getModules()
-module_list = [ atdf.Module(m) for m in modules.getchildren() ]
+    argv = parser.parse_args()
 
-shutil.rmtree(f"src/{device}", ignore_errors=True)
-Path(f"src/{device}").mkdir(exist_ok=True, parents=True)
+    df = ATDFReader(argv.atdf_file)
+    module_list = [ atdf.Module(m) for m in df.getModules().getchildren() ]
 
-templateLoader = jinja2.FileSystemLoader(searchpath="./templates")
-templateEnv = jinja2.Environment(loader=templateLoader)
+    # shutil.rmtree(argv.output_dir, ignore_errors=True)
+    Path(argv.output_dir).mkdir(exist_ok=True, parents=True)
 
-t = templateEnv.get_template('RegisterGroup.hpp.in')
+    templateLoader = jinja2.FileSystemLoader(searchpath=argv.template_dir)
+    templateEnv = jinja2.Environment(loader=templateLoader)
 
-for m in module_list:
-    # open the output file
-    ofile = open(f"src/{device}/{m.name}.hpp", 'w')
-    code = t.render(module=m)
-    ofile.write(code)
-    ofile.close()
+    t = templateEnv.get_template('RegisterGroup.hpp.in')
+
+    for m in module_list:
+        module_filename = f"{m.name}.hpp"
+
+        # overwrite old version if existing
+        ofile = open(os.path.join(argv.output_dir, module_filename), 'w')
+        code = t.render(module=m)
+        ofile.write(code)
+        ofile.close()
+
+
+if __name__ == "__main__":
+    sys.exit(run())

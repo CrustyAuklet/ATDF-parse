@@ -32,6 +32,8 @@ class BitField:
         self.mask = int(xmlNode.get('mask'), 16)
         self.shift = lowestSet(self.mask)
         self.valueType = xmlNode.get('values')
+        if self.valueType:
+            self.valueType = self.valueType.split('_', 1)[-1]   # remove the leading module name as it is redundant
 
     def __repr__(self):
         return f'{self.name} field'

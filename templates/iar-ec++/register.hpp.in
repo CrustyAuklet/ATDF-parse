@@ -1,0 +1,83 @@
+#ifndef CPP_REGISTER_ACCESS_TEMPALTES
+#define CPP_REGISTER_ACCESS_TEMPALTES
+
+#include <cstdint>
+
+typedef {{device.registerSize}}  registerType;
+typedef {{device.addressSize}} addressType;
+
+struct ro_reg8_t {
+    static unsigned read_reg(volatile registerType* reg) {
+        return *reg;
+    }
+};
+
+struct wo_reg8_t {
+    static void write_reg(volatile registerType* reg, const registerType value) {
+        *reg = value;
+    }
+};
+
+// for writing a whole word reading and writing are just combined. Class provided for consistancy.
+struct rw_reg8_t : public ro_reg8_t, public wo_reg8_t { };
+
+template<addressType address, class mutability_policy = rw_reg8_t>
+struct reg8_t{
+    static void write(registerType value) {
+        mutability_policy::write_reg(reinterpret_cast<volatile registerType*>(address),value);
+    }
+    static registerType read() {
+        return mutability_policy::read_reg(reinterpret_cast<volatile registerType*>(address));
+    }
+};
+
+/// AVR requires 16-bit registers to be read and written and two 8-bit accesses in specific order
+template<addressType address, class mutability_policy = rw_reg8_t>
+struct reg16_t{
+    typedef reg8_t<address, mutability_policy> LB;
+    typedef reg8_t<address+1, mutability_policy> HB;
+    static void write(const addressType value) {
+        LB::write(value);
+        HB::write(value>>8);
+    }
+    static addressType read() {
+        const registerType lb = LB::read();
+        return lb | (HB::read() << 8);
+    }
+    // TODO: need field access for 16 bit registers, that spans the bytes (counter in USB cas 10 bit field and then other stuff in the rest of HB)
+};
+
+/*** Structures for accessing bitfields within 8-bit registers ***/
+
+struct ro_field_t {
+    static unsigned read_field(volatile registerType* reg, const registerType mask, const registerType offset) {
+        return (*reg >> offset) & mask;
+    }
+};
+
+struct wo_field_t {
+    static void write_field(volatile registerType* reg, const registerType mask, const registerType offset, const registerType value) {
+        *reg = (value & mask) << offset;
+    }
+};
+
+struct rw_field_t : public ro_field_t {
+    static void write_field(volatile registerType* reg, const registerType mask, const registerType offset, const registerType value) {
+        *reg = (*reg & ~(mask << offset))|((value & mask) << offset);
+    }
+};
+
+template<addressType address, registerType mask, registerType offset, class mutability_policy = rw_field_t>
+struct reg_field_t{
+    static const registerType VAL_MASK = mask;
+    static const registerType BIT_MASK = mask << offset;
+    static const registerType SHIFT    = offset;
+    static void write(registerType value) {
+        mutability_policy::write_field(reinterpret_cast<volatile registerType*>(address),mask,offset,value);
+    }
+    static registerType read() {
+        return mutability_policy::read_field(reinterpret_cast<volatile registerType*>(address),mask,offset);
+    }
+};
+
+#endif // CPP_REGISTER_ACCESS_TEMPALTES
