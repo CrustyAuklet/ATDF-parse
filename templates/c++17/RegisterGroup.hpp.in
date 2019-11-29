@@ -7,7 +7,9 @@
 #include "register.hpp"
 #include <stdint.h>
 
-namespace device {
+namespace sfr {
+    using seal::registers::reg_t;
+    using seal::registers::bitfield_t;
 
 namespace {{module.name}} {
 {% for group in module.valueGroups %}
@@ -15,14 +17,6 @@ namespace {{module.name}} {
     enum class {{group.name}}v : uint8_t {
 {%- for value in group.values %}
         {{value.name}} = {{'0x%02X' % value.value}}, // {{value.description}}
-{%- endfor %}
-    };
-{% endfor %}
-{%- for group in module.interruptGroups %}
-    // {{group.name}} ISR Vector Offsets (two bytes each)
-    enum class INTERRUPTS {
-{%- for interrupt in group.interrupts %}
-        {{interrupt.name}} = {{interrupt.index}}, // {{interrupt.description}}
 {%- endfor %}
     };
 {%- endfor %}
@@ -45,13 +39,22 @@ struct {{group.name}}_t {
     /// {{register.description}} - {{register.size}} bytes
     static constexpr struct {{register.name}}_t : reg_t<uint{{register.size * 8}}_t, BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
 {%- for field in register.fields %}
-        static constexpr bitfield_t<{{register.name}}_t, {{'0x%02X' % field.mask}}, {{field.shift}}{% if field.valueType %}, {{field.valueType}}v{% endif %}> {{field.name}} = {};    //< {{field.description}}
+{%- if field.msb == field.lsb %}{% set field_type = 'bool' %}{% elif field.valueType %}{% set field_type = module.name+'::'+field.valueType+'v' %}{% else %}{% set field_type = None %}{% endif %}
+        static constexpr bitfield_t<{{register.name}}_t, {{field.msb}}, {{field.lsb}}{% if field_type %}, {{field_type}}{% endif %}> {{field.name}} = {};    //< {{field.description}}
 {%- endfor %}
     } {{register.name}} = {};
 {% endif %}
 {%- endfor %}
+{%- for int_group in module.interruptGroups %}{% if int_group.name == group.name %}
+    // {{int_group.name}} ISR Vector Offsets (two bytes each)
+    enum class INTERRUPTS {
+{%- for interrupt in int_group.interrupts %}
+        {{interrupt.name}} = {{interrupt.index}}, // {{interrupt.description}}
+{%- endfor %}
+    };
+{%- endif %}{% endfor %}
 };
 
 {% endfor -%}
-} // namespace device
+} // namespace sfr
 

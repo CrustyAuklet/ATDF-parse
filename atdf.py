@@ -1,5 +1,6 @@
 import logging
 from lxml import etree
+import math
 
 LOGGER = logging.getLogger('atdf.modules')
 
@@ -30,7 +31,8 @@ class BitField:
         self.name = xmlNode.get('name')
         self.description = xmlNode.get('caption')
         self.mask = int(xmlNode.get('mask'), 16)
-        self.shift = lowestSet(self.mask)
+        self.lsb = lowestSet(self.mask)
+        self.msb = int(math.log(self.mask, 2))
         self.valueType = xmlNode.get('values')
         if self.valueType:
             self.valueType = self.valueType.split('_', 1)[-1]   # remove the leading module name as it is redundant
