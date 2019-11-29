@@ -38,6 +38,7 @@ struct {{group.name}}_t {
 {% else %}
     /// {{register.description}} - {{register.size}} bytes
     static constexpr struct {{register.name}}_t : reg_t<uint{{register.size * 8}}_t, BASE_ADDRESS + {{'0x%04X' % register.offset}}> {
+        using reg_t<uint{{register.size * 8}}_t, BASE_ADDRESS + {{'0x%04X' % register.offset}}>::operator=;
 {%- for field in register.fields %}
 {%- if field.msb == field.lsb %}{% set field_type = 'bool' %}{% elif field.valueType %}{% set field_type = module.name+'::'+field.valueType+'v' %}{% else %}{% set field_type = None %}{% endif %}
         static constexpr bitfield_t<{{register.name}}_t, {{field.msb}}, {{field.lsb}}{% if field_type %}, {{field_type}}{% endif %}> {{field.name}} = {};    //< {{field.description}}
