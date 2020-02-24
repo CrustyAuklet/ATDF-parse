@@ -1,0 +1,47 @@
+/**
+ * Vendor: {{device.vendor}}
+ * Device: {{device.name}}
+ * SVD Verison: {{device.version}}
+ * {{device.description}}
+ */
+#ifndef CPP_DEVICE_DESCRIPTION_HEADER
+#define CPP_DEVICE_DESCRIPTION_HEADER
+
+#include "pin_types.hpp"
+#include <cstdint>
+#include <string_view>
+
+{% macro to_bool(value) %}{% if value %}true{% else %}false{% endif %}{% endmacro -%}
+{% macro normalize_cm0plus(value) %}{% if 'CM0+' == value %}CM0PLUS{% else %}{{value}}{% endif %}{% endmacro -%}
+
+namespace device {
+    struct memory_section { uint32_t start, uint32_t size; };
+
+    enum class CPUType {
+        CM0, CM0PLUS, CM0+, CM1, SC000, CM23, CM3, CM33, CM35P,
+        SC300, CM4, CM7, ARMV8MML, ARMV8MBL, CA5, CA7, CA8, CA9,
+        CA15, CA17, CA53, CA57, CA72, other
+    };
+
+    enum class EndianType { little, big, selectable, other };
+
+    constexpr std::string_view name = "{{device.vendor_id}}-{{device.name}}";
+    constexpr CPUType cpu_type = {{ normalize_cm0plus(device.cpu.name) }};
+    constexpr EndianType endianess = {{device.cpu.endian}};
+    constexpr auto width = {{ (device.width/8) | int }};
+    constexpr auto addressable = {{ (device.address_unit_bits/8) | int }};
+    constexpr auto nvic_bits = {{device.cpu.nvic_prio_bits}};
+    constexpr bool mpu_present = {{ to_bool(device.cpu.mpu_present) }};
+    constexpr bool fpu_present = {{ to_bool(device.cpu.fpu_present) }};
+    constexpr bool vendor_systick = {{ to_bool(device.cpu.vendor_systick_config) }};
+
+    /********** Peripheral Instances. Mapped to memory. **********/
+{%- for peripheral in device.peripherals %}
+    constexpr sfr::{{peripheral.name}}_t< {{ "0x%08X" | format(peripheral.base_address) }} > {{peripheral.name}}{}    // {{peripheral.description}}
+{%- endfor %}
+
+    /********** GPIO PINS **********/
+
+}  // namespace device
+
+#endif // CPP_DEVICE_DESCRIPTION_HEADER
